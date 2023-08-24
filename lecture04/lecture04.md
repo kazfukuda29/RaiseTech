@@ -9,23 +9,20 @@ VPCをAWS上で作成しました。
 
 以下のステップでEC2インスタンスを作成しました。
 
-- **初期画面**
-  ![EC2コンソール画面](./img/EC2-Management-Console01.png)
+- **EC2コンソール画面**
+  ![EC2コンソール画面](./img/EC2_console.png)
 
-- **詳細設定画面**
-  ![EC2コンソール画面](./img/EC2-Management-Console02.png)
+- **EC2コンソール画面(セキュリティ)**
+  ![EC2コンソール画面](./img/EC2-security.png)
 
 # 3. RDSの作成
 
 RDSインスタンスも作成完了しました。
 
-- **初期設定画面**
+- **RDSコンソール画面**
 
-  ![RDSコンソール画面](./img/RDS01.png)
+  ![RDSコンソール画面](./img/RDS_console.png)
 
-- **詳細設定画面**
-
-  ![RDSコンソール画面](./img/RDS02.png)
 
 # 4. EC2からRDSへの接続
 
@@ -33,14 +30,8 @@ Puttyを使用して、EC2からRDSへの接続を確立しました。
 
 - **EC2への接続画面**
 
-  ![puttyコンソール画面](./img/terminal01_EC2.png)
+  ![puttyコンソール画面](./img/terminal_EC2-connect.png)
 
-- **MySQL接続後RDSへの接続画面**
+- **RDSへの接続画面**
 
-  ![puttyコンソール画面](./img/terminal02_mysql.png)
-
-接続後のRDSコンソールの状況は以下の通りです。
-
-- **接続後のRDSコンソール画面**
-
-  ![RDSコンソール画面](./img/RDS03.png)
+  ![puttyコンソール画面](./img/terminal_EC2-RDS-connect.png)
