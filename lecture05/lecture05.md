@@ -34,6 +34,16 @@
 
 ![ABL作成画面](./img/Load-balancer-details-Load-Balancing-EC2.png)
 
+- ALBインバウンドルール
+
+![ABL作成画面](./img/ALB-inbound.png)
+
+- ALBアウトバウンドルール
+
+![ABL作成画面](./img/ALB-outbound.png)
+
+
+
 
 - EC2セキュリティグループでALBをインバウンドルールに追加
 
@@ -45,7 +55,7 @@
 ![EC2コンソール画面](./img/Target-group-details-EC2.png)
 
 
--ALB追加後ブラウザ画面
+- ALB追加後ブラウザ画面
 
 ![ALB追加後ブラウザ画面](./img/ALB-browser.png)
 
@@ -62,12 +72,12 @@
 ![ロール画面](./img/EC2-IAM-role-console.png)
 
 
--S3追加後ブラウザ画面
+- S3追加後ブラウザ画面
 
 ![S3追加後ブラウザ画面](./img/S3-browser.png)
 
 
--S3追加後コンソール画面
+- S3追加後コンソール画面
 
 ![S3追加後コンソール画面](./img/raisetech-lec05-s3-S3-bucket.png)
 
