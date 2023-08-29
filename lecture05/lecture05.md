@@ -37,7 +37,7 @@
 
 - EC2セキュリティグループでALBをインバウンドルールに追加
 
-![EC2コンソール画面](./img/EC2-console.png)
+![EC2コンソール画面](./img/EC2-ALB-security.png)
 
 
 - 疎通確認
