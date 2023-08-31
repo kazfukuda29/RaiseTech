@@ -40,7 +40,7 @@
 
 ## 3.AWS 利用料の見積を作成
 
-[見積もりはこちらのリンクから確認お願いします。](https://calculator.aws/#/estimate?id=7143cb356e5e30a3a79e69673ca01c968a818ef4)
+[見積もりはこちらのリンクから確認お願いします。](https://calculator.aws/#/estimate?id=642be42161d61e60e41da4b6deeb92dad26e9f02)
 
 - **請求額は無料でした(今月中旬～下旬に契約したので先月分は無く今月分です)**
 
