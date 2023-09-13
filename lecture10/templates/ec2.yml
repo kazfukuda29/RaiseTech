@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 第10回課題EC2
+
+Parameters:
+  Project:
+    Type: String
+    Default: raisetech-lecture10
+
+Resources:
+  # セキュリティグループ
+  Lec10Ec2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue VPC
+      GroupDescription: !Sub This Security Group is for ${Project}
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        # Railsのアプリケーションサーバー
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-ec2-sg
+
+  # EC2インスタンス
+  Lec10EC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !ImportValue PublicSubnet1a
+      InstanceType: t2.micro
+      AvailabilityZone: !Sub ${AWS::Region}a
+      KeyName: raisetech-lec04-kp
+      Monitoring: false
+      InstanceInitiatedShutdownBehavior: stop
+      IamInstanceProfile: !Ref Lec10EC2InstanceProfile
+      SecurityGroupIds:
+        - !Ref Lec10Ec2SecurityGroup
+      # AMIの情報はマネジメントコンソールから確認可能
+      ImageId: ami-0f89bdd365c3d966d
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 8
+            VolumeType: gp2
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-ec2
+
+  #S3にフルアクセスのロール作成
+  Lec10EC2S3FullAccessRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        - PolicyName: S3FullAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: "*"
+
+  #ロールをアタッチ
+  Lec10EC2InstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Roles:
+        - Ref: Lec10EC2S3FullAccessRole
+
+Outputs:
+  EC2:
+    Value: !Ref Lec10EC2
+    Export:
+      Name: EC2
+
+  EC2Sg:
+    Value: !Ref Lec10Ec2SecurityGroup
+    Export:
+      Name: EC2Sg

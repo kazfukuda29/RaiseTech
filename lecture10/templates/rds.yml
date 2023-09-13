@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 第10回課題RDS
+
+Parameters:
+  Project:
+    Type: String
+    Default: raisetech-lecture10
+
+  DBUser:
+    Type: String
+    Default: root
+
+  DBName:
+    Type: String
+    Default: RaiseTechLec10DB
+
+  DBPasswordParamName:
+    Description: Name of the SSM parameter that holds the DB password
+    Type: String
+    Default: "raisetech-lec10-rds-pass"
+    NoEcho: true
+
+Resources:
+  Lec10RDS:
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Sub ${Project}-rds
+      DBInstanceClass: db.t2.micro
+      Engine: mysql
+      EngineVersion: 8.0.32
+      MasterUsername: !Ref DBUser
+      MasterUserPassword: !Sub "{{resolve:ssm:${DBPasswordParamName}:1}}"
+      DBName: !Ref DBName
+      BackupRetentionPeriod: 1
+      MultiAZ: false
+      PubliclyAccessible: false
+      StorageType: gp2
+      AllocatedStorage: 20
+      StorageEncrypted: false
+      CopyTagsToSnapshot: false
+      DeletionProtection: false
+      DeleteAutomatedBackups: true
+      MonitoringInterval: 0
+      DBSubnetGroupName: !Ref Lec10RdsSubnetGroup
+      VPCSecurityGroups:
+        - !Ref Lec10RdsSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-rds
+
+  # セキュリティグループ
+  Lec10RdsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub This Security Group is for ${Project}
+      VpcId: !ImportValue VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !ImportValue EC2Sg
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-rds-sg
+
+  #サブネットグループ
+  Lec10RdsSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: This DBSubnet Group is for  cloudformationRDS
+      SubnetIds:
+        - !ImportValue PrivateSubnet1a
+        - !ImportValue PrivateSubnet1c
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-rds-subnet-group
+
+Outputs:
+  RDS:
+    Value: !Ref Lec10RDS
+    Export:
+      Name: RDS
+  RDSSg:
+    Value: !Ref Lec10RdsSecurityGroup
+    Export:
+      Name: RDSSg
+  RDSSubnetGroup:
+    Value: !Ref Lec10RdsSubnetGroup
+    Export:
+      Name: RDSSubnetGroup
