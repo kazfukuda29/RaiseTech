@@ -55,12 +55,12 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: !Sub This Security Group is for ${Project}
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue VPCId
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 3306
           ToPort: 3306
-          SourceSecurityGroupId: !ImportValue EC2Sg
+          SourceSecurityGroupId: !ImportValue EC2SgId
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0

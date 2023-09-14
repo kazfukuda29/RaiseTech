@@ -136,7 +136,7 @@ Outputs:
   VPC:
     Value: !Ref Lec10VPC
     Export:
-      Name: VPC
+      Name: VPCId
 
   PublicSubnet1a:
     Value: !Ref Lec10PublicSubnet1a

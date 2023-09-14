@@ -32,7 +32,7 @@ Resources:
   Lec10S3VpcEndpoint:
     Type: "AWS::EC2::VPCEndpoint"
     Properties:
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue VPCId
       ServiceName: !Sub com.amazonaws.${AWS::Region}.s3
       RouteTableIds:
         - !ImportValue PublicRt

@@ -11,7 +11,7 @@ Resources:
   Lec10Ec2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue VPC
+      VpcId: !ImportValue VPCId
       GroupDescription: !Sub This Security Group is for ${Project}
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -88,9 +88,9 @@ Outputs:
   EC2:
     Value: !Ref Lec10EC2
     Export:
-      Name: EC2
+      Name: EC2Id
 
   EC2Sg:
     Value: !Ref Lec10Ec2SecurityGroup
     Export:
-      Name: EC2Sg
+      Name: EC2SgId

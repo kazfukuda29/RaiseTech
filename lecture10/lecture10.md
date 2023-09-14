@@ -6,15 +6,11 @@
 
 ## 1.コードは下記にファイルで作成
 
- -[vpc.yml](./templates/vpc.yml)
-
- -[ec2.yml](./templates/ec2.yml)
-
- -[rds.yml](./templates/rds.yml)
-
- -[elb.yml](./templates/elb.yml)
-
- -[s3.yml](./templates/s3.yml)
+ - [vpc.yml](./templates/vpc.yml)
+ - [ec2.yml](./templates/ec2.yml)
+ - [rds.yml](./templates/rds.yml)
+ - [elb.yml](./templates/elb.yml)
+ - [s3.yml](./templates/s3.yml)
 
 ## 2.実行後の確認画像
 
