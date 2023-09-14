@@ -65,6 +65,6 @@ Resources:
 
 Outputs:
   ELBSg:
-    Value: !Ref Lec10ElbTargetGroup
+    Value: !Ref Lec10ElbSecurityGroup
     Export:
-      Name: ELBSg
+      Name: ELBSgId
