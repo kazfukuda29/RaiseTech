@@ -44,8 +44,7 @@ Resources:
       Name: !Sub ${Project}-elb-tg
       Protocol: HTTP
       Port: 80
-      VpcId:
-        - !ImportValue VPCId
+      VpcId: !ImportValue VPCId
       ProtocolVersion: HTTP1
       HealthCheckProtocol: HTTP
       HealthCheckPath: /
