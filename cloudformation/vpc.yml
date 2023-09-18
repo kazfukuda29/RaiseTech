@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 第10回課題VPC
+
+Parameters:
+  Project:
+    Type: String
+    Default: raisetech-lecture10
+
+Resources:
+  #  VPC
+  Lec10VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.1.0.0/16
+      InstanceTenancy: default
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-vpc
+
+  #  サブネット
+  Lec10PublicSubnet1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.0.0/20
+      VpcId: !Ref Lec10VPC
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-public-subnet-1a
+
+  Lec10PublicSubnet1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.16.0/20
+      VpcId: !Ref Lec10VPC
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-public-subnet-1c
+
+  Lec10PrivateSubnet1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.128.0/20
+      VpcId: !Ref Lec10VPC
+      MapPublicIpOnLaunch: false
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-private-subnet-1a
+
+  Lec10PrivateSubnet1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.1.144.0/20
+      VpcId: !Ref Lec10VPC
+      MapPublicIpOnLaunch: false
+      AvailabilityZone: !Sub ${AWS::Region}c
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-private-subnet-1c
+
+  #  インターネットゲートウェイ
+  Lec10IGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-igw
+
+  # VPCGatewayAttachment
+  Lec10GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref Lec10IGW
+      VpcId: !Ref Lec10VPC
+
+  #  ルートテーブル
+  Lec10PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Lec10VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-public-route-table
+
+  Lec10PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Lec10VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${Project}-private-route-table
+
+  # サブネットとルートテーブルの関連付け
+  Lec10PublicRouteAssociation1a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Lec10PublicSubnet1a
+      RouteTableId: !Ref Lec10PublicRouteTable
+
+  # サブネットとルートテーブルの関連付け
+  Lec10PublicRouteAssociation1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Lec10PublicSubnet1c
+      RouteTableId: !Ref Lec10PublicRouteTable
+
+  # サブネットとルートテーブルの関連付け
+  Lec10PrivateRouteAssociation1a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Lec10PrivateSubnet1a
+      RouteTableId: !Ref Lec10PrivateRouteTable
+
+  # サブネットとルートテーブルの関連付け
+  Lec10PrivateRouteAssociation1c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref Lec10PrivateSubnet1c
+      RouteTableId: !Ref Lec10PrivateRouteTable
+
+  # インターネットゲートウェイとルートテーブルの関連付け
+  Lec10RouteIgw:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref Lec10PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref Lec10IGW
+
+Outputs:
+  VPC:
+    Value: !Ref Lec10VPC
+    Export:
+      Name: VPCId
+
+  PublicSubnet1a:
+    Value: !Ref Lec10PublicSubnet1a
+    Export:
+      Name: PublicSubnet1a
+
+  PublicSubnet1c:
+    Value: !Ref Lec10PublicSubnet1c
+    Export:
+      Name: PublicSubnet1c
+
+  PrivateSubnet1a:
+    Value: !Ref Lec10PrivateSubnet1a
+    Export:
+      Name: PrivateSubnet1a
+
+  PrivateSubnet1c:
+    Value: !Ref Lec10PrivateSubnet1c
+    Export:
+      Name: PrivateSubnet1c
+
+  PrivateRt:
+    Value: !Ref Lec10PrivateRouteTable
+    Export:
+      Name: PrivateRt
+
+  PublicRt:
+    Value: !Ref Lec10PublicRouteTable
+    Export:
+      Name: PublicRt
