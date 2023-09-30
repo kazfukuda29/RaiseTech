@@ -129,11 +129,6 @@ jobs:
             cd serverspec
             bundle install --path vendor/bundle
       - run:
-          name: Directly execute serverspec
-          command: |
-            cd serverspec
-            TARGET_HOST=raisetech-ec2 bundle exec rspec spec/raisetech-ec2/sample_spec.rb
-      - run:
           name: execute serverspec
           command: |
             cd serverspec
