@@ -1,0 +1,16 @@
+---
+# Railsのバージョンを確認するタスク
+- name: Check Rails version
+  command: gem list -e rails
+  register: rails_version_check  # 結果を変数rails_version_checkに保存
+  changed_when: false  # このタスクはシステムに変更を加えない
+  failed_when: false  # 失敗した場合もエラーとしない
+
+# 指定されたバージョンのRailsが存在しなければ、インストールするタスク
+- name: Install Rails if not present
+  gem:
+    name: rails
+    version: "{{ rails_version }}"  # インストールするRailsのバージョンを指定
+    executable: /home/ec2-user/.rbenv/shims/gem  # rbenvを使用してgemを指定
+    user_install: no  # システム全体にインストール
+  when: rails_version not in rails_version_check.stdout  # 指定されたバージョンのRailsが存在しない場合のみ実行

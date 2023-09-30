@@ -1,0 +1,12 @@
+app_name: "my_rails_app"
+app_repo_url: "https://github.com/yuta-ushijima/raisetech-live8-sample-app.git"
+sample_app_dir: /var/www/raisetech-live8-sample-app
+ruby_version: "3.1.2"
+bundler_version: "2.3.14"
+rails_version: "7.0.4"
+node_version: "17.9.1"
+yarn_version: "1.22.19"
+db_user: "{{ lookup('env', 'AWS_DB_USER') }}" #CircleCiの環境変数にコンソールで設定
+db_password: "{{ lookup('env', 'AWS_DB_PW') }}" #CircleCiの環境変数にコンソールで設定
+aws_db_host: "{{ lookup('env', 'AWS_DB_HOST') }}" #CircleCiの環境変数にデプロイ時に登録される
+aws_s3_bucket: "raisetech-lecture10-s3"

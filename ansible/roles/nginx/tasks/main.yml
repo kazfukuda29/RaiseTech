@@ -1,0 +1,35 @@
+---
+# nginxのバージョンをチェックし、インストール状態を確認する
+- name: Check if nginx is installed
+  command: nginx -v
+  register: nginx_installed
+  changed_when: false
+  failed_when: false
+
+# nginxが未インストールの場合、Amazon Linux 2のextrasリポジトリからnginxをインストールする
+- name: Install nginx
+  become: true
+  shell: amazon-linux-extras install -y nginx1
+  when: "'nginx' not in nginx_installed.stdout"
+
+# nginx用の設定ファイルrails.confを作成する。このファイルはRailsとUnicornの連携に必要
+- name: Create rails.conf for nginx
+  become: true
+  template:
+    src: rails.conf.j2
+    dest: "/etc/nginx/conf.d/rails.conf"
+
+# nginxサービスを起動する
+- name: Start nginx service
+  become: true
+  service:
+    name: nginx
+    state: started
+  register: nginx_started
+
+# nginxが新たに起動された場合のみ、Unicornサーバを起動する
+- name: Start Unicorn server
+  shell: bash -lc "bundle exec unicorn_rails -c config/unicorn.rb -E development -D"
+  args:
+    chdir: "{{ sample_app_dir }}"
+  when: nginx_started is changed   

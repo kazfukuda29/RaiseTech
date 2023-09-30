@@ -1,6 +1,23 @@
 version: 2.1
 orbs:
   python: circleci/python@2.0.3
+  aws-cli: circleci/aws-cli@3.1.5
+  ansible: orbss/ansible-playbook@0.0.5
+  ruby: circleci/ruby@2.0.0
+
+commands:
+  setup-ssh-config:
+    description: "Setup SSH configuration"
+    steps:
+      - run:
+          name: Setup SSH Config
+          command: |
+            if [ -z "$TARGET_HOST" ]; then
+              echo "TARGET_HOST is not set"
+              exit 1
+            fi
+            echo -e "Host raisetech-lecture10-ec2\n  HostName ${TARGET_HOST}\n  Port 22\n  User ec2-user\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no" > ~/.ssh/config
+
 jobs:
   cfn-lint:
     executor: python/default
@@ -11,8 +28,101 @@ jobs:
           name: run cfn-lint
           command: |
             cfn-lint -i W3002 -t cloudformation/*.yml
+          when: always
+          no_output_timeout: 5m
+
+  cfn-execute:
+    executor: aws-cli/default
+    steps:
+      - checkout
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run: aws cloudformation deploy --template-file cloudformation/vpc.yml --stack-name raisetech-lecture10-vpc
+      - run: aws cloudformation deploy --template-file cloudformation/ec2.yml --stack-name raisetech-lecture10-ec2
+      - run: aws cloudformation deploy --template-file cloudformation/rds.yml --stack-name raisetech-lecture10-rds
+      - run: aws cloudformation deploy --template-file cloudformation/elb.yml --stack-name raisetech-lecture10-elb
+      - run: aws cloudformation deploy --template-file cloudformation/s3.yml --stack-name raisetech-lecture10-s3
+
+  get-ec2-ip:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Fetch EC2 IP Address by Tag
+          command: |
+            IP_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=raisetech-lecture10-ec2" --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
+            if [ -z "$IP_ADDRESS" ]; then
+              echo "Failed to fetch IP Address"
+              exit 1
+            fi
+            echo "export TARGET_HOST=$IP_ADDRESS" >> $BASH_ENV
+
+  get-rds-endpoint:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+      - run:
+          name: Fetch RDS Endpoint by Stack Output
+          command: |
+            ENDPOINT=$(aws cloudformation describe-stacks --stack-name raisetech-lecture10-rds --query "Stacks[0].Outputs[?OutputKey=='RDS'].OutputValue" --output text)
+            if [ -z "$ENDPOINT" ]; then
+              echo "Failed to fetch RDS Endpoint"
+              exit 1
+            fi
+            echo "export AWS_DB_HOST=$ENDPOINT" >> $BASH_ENV
+
+  ansible-execute:
+    executor: ansible/default
+    steps:
+      - checkout
+      - setup-ssh-config
+      - ansible/install:
+          version: 2.9.23
+      - ansible/playbook:
+          playbook: ansible/playbook.yml
+          playbook-options: "-i ansible/inventory"
+
+  serverspec-execute:
+    docker:
+      - image: cimg/ruby:2.7-node
+    steps:
+      - checkout
+      - setup-ssh-config
+      - run:
+          name: bundle install
+          command: |
+            cd serverspec
+            bundle install --path vendor/bundle
+      - run:
+          name: execute serverspec
+          command: |
+            cd serverspec
+            bundle exec rake spec
 
 workflows:
   raisetech:
     jobs:
       - cfn-lint
+      - cfn-execute:
+          requires:
+            - cfn-lint
+      - get-ec2-ip:
+          requires:
+            - cfn-execute
+      - get-rds-endpoint:
+          requires:
+            - cfn-execute
+      - ansible-execute:
+          requires:
+            - get-ec2-ip
+      - serverspec-execute:
+          requires:
+            - ansible-execute

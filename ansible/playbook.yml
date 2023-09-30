@@ -1,0 +1,15 @@
+---
+- hosts:
+    - web-server
+  become: True
+  become_user: ec2-user
+  roles:
+    - { role: yum, tags: yum }
+    - { role: ruby, tags: ruby }
+    - { role: bundler, tags: bundler }
+    - { role: rails, tags: rails }
+    - { role: node, tags: node }
+    - { role: yarn, tags: yarn }
+    - { role: app, tags: app }
+    - { role: mysql, tags: mysql }
+    - { role: nginx, tags: nginx }
