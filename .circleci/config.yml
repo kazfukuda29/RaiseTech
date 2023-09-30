@@ -40,7 +40,7 @@ jobs:
           aws-region: AWS_DEFAULT_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - run: aws cloudformation deploy --template-file cloudformation/vpc.yml --stack-name raisetech-lecture10-vpc
-      - run: aws cloudformation deploy --template-file cloudformation/ec2.yml --stack-name raisetech-lecture10-ec2
+      - run: aws cloudformation deploy --template-file cloudformation/ec2.yml --stack-name raisetech-lecture10-ec2 --capabilities CAPABILITY_IAM
       - run: aws cloudformation deploy --template-file cloudformation/rds.yml --stack-name raisetech-lecture10-rds
       - run: aws cloudformation deploy --template-file cloudformation/elb.yml --stack-name raisetech-lecture10-elb
       - run: aws cloudformation deploy --template-file cloudformation/s3.yml --stack-name raisetech-lecture10-s3
