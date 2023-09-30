@@ -53,14 +53,18 @@ jobs:
           aws-region: AWS_DEFAULT_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - run:
-          name: Fetch EC2 IP Address by Tag
+          name: Fetch EC2 IP Address by Tag and Save to File
           command: |
             IP_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=raisetech-lecture10-ec2" --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
             if [ -z "$IP_ADDRESS" ]; then
               echo "Failed to fetch IP Address"
               exit 1
             fi
-            echo "export TARGET_HOST=$IP_ADDRESS" >> $BASH_ENV
+            echo "$IP_ADDRESS" > /tmp/ec2_ip.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - ec2_ip.txt
 
   get-rds-endpoint:
     executor: aws-cli/default
@@ -70,19 +74,43 @@ jobs:
           aws-region: AWS_DEFAULT_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
       - run:
-          name: Fetch RDS Endpoint by Stack Output
+          name: Fetch RDS Endpoint by Stack Output and Save to File
           command: |
             ENDPOINT=$(aws cloudformation describe-stacks --stack-name raisetech-lecture10-rds --query "Stacks[0].Outputs[?OutputKey=='RDS'].OutputValue" --output text)
             if [ -z "$ENDPOINT" ]; then
               echo "Failed to fetch RDS Endpoint"
               exit 1
             fi
-            echo "export AWS_DB_HOST=$ENDPOINT" >> $BASH_ENV
+            echo "$ENDPOINT" > /tmp/rds_endpoint.txt
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - rds_endpoint.txt
 
   ansible-execute:
     executor: ansible/default
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp
+      - run:
+          name: Load EC2 IP Address and RDS Endpoint from Files
+          command: |
+            if [ -f /tmp/ec2_ip.txt ]; then
+              export TARGET_HOST=$(cat /tmp/ec2_ip.txt)
+              echo "Loaded TARGET_HOST as $TARGET_HOST"
+            else
+              echo "Failed to load IP Address from file"
+              exit 1
+            fi
+
+            if [ -f /tmp/rds_endpoint.txt ]; then
+              export AWS_DB_HOST=$(cat /tmp/rds_endpoint.txt)
+              echo "Loaded AWS_DB_HOST as $AWS_DB_HOST"
+            else
+              echo "Failed to load RDS Endpoint from file"
+              exit 1
+            fi
       - setup-ssh-config
       - ansible/install:
           version: 2.9.23
@@ -123,6 +151,7 @@ workflows:
       - ansible-execute:
           requires:
             - get-ec2-ip
+            - get-rds-endpoint
       - serverspec-execute:
           requires:
             - ansible-execute
