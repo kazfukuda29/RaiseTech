@@ -10,13 +10,16 @@ commands:
     description: "Setup SSH configuration"
     steps:
       - run:
-          name: Setup SSH Config
+          name: Load EC2 IP Address from File and Setup SSH Config
           command: |
-            if [ -z "$TARGET_HOST" ]; then
-              echo "TARGET_HOST is not set"
+            if [ -f /tmp/ec2_ip.txt ]; then
+              TARGET_HOST=$(cat /tmp/ec2_ip.txt)
+              echo "Loaded TARGET_HOST as $TARGET_HOST"
+              echo -e "Host raisetech-lecture10-ec2\n  HostName ${TARGET_HOST}\n  Port 22\n  User ec2-user\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no" > ~/.ssh/config
+            else
+              echo "Failed to load IP Address from file"
               exit 1
             fi
-            echo -e "Host raisetech-lecture10-ec2\n  HostName ${TARGET_HOST}\n  Port 22\n  User ec2-user\n  IdentityFile ~/.ssh/id_rsa\n  StrictHostKeyChecking no" > ~/.ssh/config
 
 jobs:
   cfn-lint:
@@ -93,25 +96,16 @@ jobs:
       - checkout
       - attach_workspace:
           at: /tmp
+      - setup-ssh-config
       - run:
-          name: Load EC2 IP Address and RDS Endpoint from Files
+          name: Load RDS Endpoint from File
           command: |
-            if [ -f /tmp/ec2_ip.txt ]; then
-              export TARGET_HOST=$(cat /tmp/ec2_ip.txt)
-              echo "Loaded TARGET_HOST as $TARGET_HOST"
-            else
-              echo "Failed to load IP Address from file"
-              exit 1
-            fi
-
             if [ -f /tmp/rds_endpoint.txt ]; then
-              export AWS_DB_HOST=$(cat /tmp/rds_endpoint.txt)
-              echo "Loaded AWS_DB_HOST as $AWS_DB_HOST"
+              echo "export AWS_DB_HOST=$(cat /tmp/rds_endpoint.txt)" >> $BASH_ENV
             else
               echo "Failed to load RDS Endpoint from file"
               exit 1
             fi
-      - setup-ssh-config
       - ansible/install:
           version: 2.9.23
       - ansible/playbook:
