@@ -1,7 +1,7 @@
 ---
 - hosts:
     - web_server
-  become: ture
+  become: true
   become_user: ec2-user
   roles:
     - { role: yum, tags: yum }
