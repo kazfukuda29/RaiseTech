@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Fetch RDS Endpoint by Stack Output and Save to File
           command: |
-            ENDPOINT=$(aws cloudformation describe-stacks --stack-name raisetech-lecture10-rds --query "Stacks[0].Outputs[?OutputKey=='RDS'].OutputValue" --output text)
+            ENDPOINT=$(aws cloudformation describe-stacks --stack-name raisetech-lecture10-rds --query "Stacks[0].Outputs[?OutputKey=='RDSEndpoint'].OutputValue" --output text)
             if [ -z "$ENDPOINT" ]; then
               echo "Failed to fetch RDS Endpoint"
               exit 1
