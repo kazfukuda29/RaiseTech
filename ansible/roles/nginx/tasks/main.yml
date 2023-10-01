@@ -9,7 +9,7 @@
 - name: Install nginx
   become: true
   shell: amazon-linux-extras install -y nginx1
-  when: nginx_installed is failed
+  # when: nginx_installed is failed
 
 # nginx用の設定ファイルrails.confを作成する。このファイルはRailsとUnicornの連携に必要
 - name: Create rails.conf for nginx
