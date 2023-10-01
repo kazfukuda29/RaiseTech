@@ -1,6 +1,8 @@
 # ------------------------------------------------------------#
 #  rbenv
 # ------------------------------------------------------------#
+
+# rbenvのインストールチェック
 - name: Check for rbenv installation
   shell: bash -lc "rbenv --version"
   register: rbenv_version_check
@@ -8,60 +10,99 @@
   ignore_errors: yes
   tags: rbenv
 
+# rbenvのインストール
 - name: Install rbenv from GitHub
+  become: yes
+  become_user: ec2-user
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
   when: rbenv_version_check is failed
   tags: rbenv
 
+# rbenvのPATH設定
 - name: Configure rbenv PATH
+  become: yes
+  become_user: ec2-user
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
   when: rbenv_version_check is failed
   tags: rbenv
 
+# rbenvの初期化
 - name: Initialize rbenv in .bash_profile
+  become: yes
+  become_user: ec2-user
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
   when: rbenv_version_check is failed
   tags: rbenv
 
+# .bash_profileの再読み込み
 - name: Source .bash_profile to activate rbenv
+  become: yes
+  become_user: ec2-user
   shell: bash -lc "source ~/.bash_profile"
   when: rbenv_version_check is failed
   tags: rbenv
 
+# ruby-buildプラグインのインストール
 - name: Install ruby-build plugin for rbenv
+  become: yes
+  become_user: ec2-user
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
   when: rbenv_version_check is failed
   tags: rbenv
 
+# ディレクトリの権限の確保
+- name: Ensure proper directory permissions
+  become: yes
+  file:
+    path: /home/ec2-user/.rbenv
+    state: directory
+    owner: ec2-user
+    group: ec2-user
+    mode: '0755'
+  tags: rbenv
+
 # ------------------------------------------------------------#
 #  Ruby
 # ------------------------------------------------------------#
+
+# Rubyバージョンのチェック
 - name: Check for specified Ruby version
+  become: yes
+  become_user: ec2-user
   shell: bash -lc "rbenv version | grep {{ ruby_version }}"
   register: ruby_version_check
   changed_when: no
   ignore_errors: yes
   tags: ruby
 
+# rbenvを使用してのRubyのインストール
 - name: Install specified Ruby version using rbenv
+  become: yes
+  become_user: ec2-user
   shell: bash -lc "rbenv install {{ ruby_version }}"
   when: ruby_version_check is failed
   tags: ruby
 
+# rbenvでのデフォルトRubyバージョンの設定
 - name: Set the default Ruby version with rbenv
+  become: yes
+  become_user: ec2-user
   shell: bash -lc "rbenv global {{ ruby_version }}"
   when: ruby_version_check is failed
   tags: ruby
 
+# rbenvの設定の更新
 - name: Update rbenv configuration
+  become: yes
+  become_user: ec2-user
   shell: bash -lc "rbenv rehash"
   when: ruby_version_check is failed
   tags: rbenv
