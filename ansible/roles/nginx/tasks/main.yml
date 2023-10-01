@@ -1,4 +1,3 @@
----
 # nginxのバージョンをチェックし、インストール状態を確認する
 - name: Check if nginx is installed
   command: nginx -v
@@ -32,4 +31,4 @@
   shell: bash -lc "bundle exec unicorn_rails -c config/unicorn.rb -E development -D"
   args:
     chdir: "{{ sample_app_dir }}"
-  when: nginx_started is changed   
+  when: nginx_started.changed  # 'changed'を使用して、nginxが新たに起動されたかどうかを確認します

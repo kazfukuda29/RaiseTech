@@ -1,27 +1,21 @@
----
-- name: Check if specified Node version is installed
-  command: node --version
+- name: check node install
+  shell: bash -lc "node --version | grep {{ node_version }}"
   register: node_version_check
-  changed_when: false
-  failed_when: false
-  tags: node
+  changed_when: no
+  ignore_errors: yes
 
-# nvmのインストールの確認は `stat` モジュールで行い、その存在を確認する。
 - name: Check if nvm is installed
   stat:
     path: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
   register: nvm_installed
-  tags: nvm
 
-# nvmがインストールされていない場合のみ、nvmをインストール。get_urlやunarchiveなどの専用モジュールの代わりにshellを使用する場面は注意が必要です。
-- name: Install nvm
-  shell: >
+- name: Install nvm if not present
+  ansible.builtin.shell: >
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
   when: not nvm_installed.stat.exists
-  tags: nvm
 
-# Nodeのバージョン確認の際、"v"を明示的に付与して比較。また、コマンドの結果がエラーを返す可能性があるため、エラーチェックを追加。
-- name: Install Node using nvm
+- name: Install Node using nvm if not present
   shell: bash -lc "source {{ ansible_env.HOME }}/.nvm/nvm.sh && nvm install {{ node_version }}"
-  when: node_version_check.stdout is not defined or node_version_check.stdout != "v{{ node_version }}"
-  tags: node
+  when: node_version_check is failed

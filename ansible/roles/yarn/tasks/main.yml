@@ -1,12 +1,9 @@
----
-# Yarnのバージョンを確認するタスク
-- name: Check Yarn version
-  command: yarn --version
-  register: yarn_version_check  # 結果を変数yarn_version_checkに保存
-  changed_when: false  # このタスクはシステムに変更を加えない
-  failed_when: false  # 失敗した場合もエラーとしない
+- name: check yarn install
+  shell: bash -lc "yarn --version | grep {{ yarn_version }}"
+  register: yarn_version_check
+  changed_when: no
+  ignore_errors: yes
 
-# 指定されたバージョンのYarnが存在しなければ、インストールするタスク
 - name: Install Yarn if not present
-  command: npm install --global yarn@{{ yarn_version }}
-  when: yarn_version not in yarn_version_check.stdout  # 指定されたバージョンのYarnが存在しない場合のみ実行
+  shell: bash -lc "npm install --global yarn@{{ yarn_version }}"
+  when: yarn_version_check is failed

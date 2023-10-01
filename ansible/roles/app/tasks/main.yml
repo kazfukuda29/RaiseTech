@@ -1,11 +1,10 @@
----
 # リポジトリをクローンする
 - name: Clone the app repository
   git:
     repo: "{{ app_repo_url }}"
     dest: "{{ sample_app_dir }}"
     force: yes
-  register: git_clone
+  register: git_clone_action  # 変数名を明確にするために変更しました
   become: yes
   become_user: root
 
@@ -18,7 +17,7 @@
     recurse: yes
   become: yes
   become_user: root
-  when: git_clone.changed
+  when: git_clone_action.changed  # 上記で変更した変数名に合わせて変更しました
 
 # 各種設定ファイルを作成/更新する
 - name: Create/Update config files

@@ -1,62 +1,67 @@
----
+# ------------------------------------------------------------#
+#  rbenv
+# ------------------------------------------------------------#
 - name: Check for rbenv installation
-  command: rbenv --version
+  shell: bash -lc "rbenv --version"
   register: rbenv_version_check
-  changed_when: false
-  failed_when: false
+  changed_when: no
+  ignore_errors: yes
   tags: rbenv
 
 - name: Install rbenv from GitHub
   git:
     repo: https://github.com/sstephenson/rbenv.git
     dest: /home/ec2-user/.rbenv
-  when: rbenv_version_check.failed
+  when: rbenv_version_check is failed
   tags: rbenv
 
 - name: Configure rbenv PATH
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
-  when: rbenv_version_check.failed
+  when: rbenv_version_check is failed
   tags: rbenv
 
 - name: Initialize rbenv in .bash_profile
   lineinfile:
     path: /home/ec2-user/.bash_profile
     line: 'eval "$(rbenv init -)"'
-  when: rbenv_version_check.failed
+  when: rbenv_version_check is failed
   tags: rbenv
 
 - name: Source .bash_profile to activate rbenv
-  command: source ~/.bash_profile
-  when: rbenv_version_check.failed
+  shell: bash -lc "source ~/.bash_profile"
+  when: rbenv_version_check is failed
   tags: rbenv
 
 - name: Install ruby-build plugin for rbenv
   git:
     repo: https://github.com/sstephenson/ruby-build.git
     dest: /home/ec2-user/.rbenv/plugins/ruby-build
-  when: rbenv_version_check.failed
+  when: rbenv_version_check is failed
   tags: rbenv
 
+# ------------------------------------------------------------#
+#  Ruby
+# ------------------------------------------------------------#
 - name: Check for specified Ruby version
-  command: rbenv version
+  shell: bash -lc "rbenv version | grep {{ ruby_version }}"
   register: ruby_version_check
-  changed_when: false
-  failed_when: false
+  changed_when: no
+  ignore_errors: yes
   tags: ruby
 
 - name: Install specified Ruby version using rbenv
-  command: rbenv install {{ ruby_version }}
-  when: ruby_version_check.stdout != ruby_version
+  shell: bash -lc "rbenv install {{ ruby_version }}"
+  when: ruby_version_check is failed
   tags: ruby
 
 - name: Set the default Ruby version with rbenv
-  command: rbenv global {{ ruby_version }}
-  when: ruby_version_check.stdout != ruby_version
+  shell: bash -lc "rbenv global {{ ruby_version }}"
+  when: ruby_version_check is failed
   tags: ruby
 
 - name: Update rbenv configuration
-  command: rbenv rehash
-  when: ruby_version_check.stdout != ruby_version
+  shell: bash -lc "rbenv rehash"
+  when: ruby_version_check is failed
   tags: rbenv

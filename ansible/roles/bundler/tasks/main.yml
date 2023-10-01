@@ -1,10 +1,9 @@
----
 # Bundlerのバージョンを確認して、必要なバージョンがインストールされているかを判定
 - name: Check Bundler version
-  command: bundler version
+  shell: bash -lc "bundler version | grep {{ bundler_version }}"
   register: bundler_version_check
-  changed_when: false
-  failed_when: false
+  changed_when: no
+  ignore_errors: yes
   tags: bundler
 
 # 必要なバージョンのBundlerがインストールされていない場合のみ、インストールする
@@ -14,5 +13,5 @@
     version: "{{ bundler_version }}"
     executable: /home/ec2-user/.rbenv/shims/gem
     user_install: no
-  when: bundler_version_check.stdout != "Bundler version {{ bundler_version }}"
+  when: bundler_version_check is failed
   tags: bundler
