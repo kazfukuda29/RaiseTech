@@ -37,13 +37,13 @@ Resources:
       RouteTableIds:
         - !ImportValue PublicRt
         - !ImportValue PrivateRt
-PolicyDocument:
-  Version: "2012-10-17"
-  Statement:
-    - Effect: Allow
-      Principal: "*"
-      Action: "s3:*"
-      Resource:
-        - !Sub arn:aws:s3:::${Project}-s3
-        - !Sub arn:aws:s3:::${Project}-s3/*
-        - "arn:aws:s3:::amazonlinux.*.amazonaws.com/*"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub arn:aws:s3:::${Project}-s3
+              - !Sub arn:aws:s3:::${Project}-s3/*
+              - "arn:aws:s3:::amazonlinux.*.amazonaws.com/*"
