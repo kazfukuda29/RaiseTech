@@ -2,7 +2,7 @@
 - hosts:
     - web_server
   become: true
-  # become_user: ec2-user
+  become_user: ec2-user
   roles:
     - { role: yum, tags: yum }
     - { role: ruby, tags: ruby }
