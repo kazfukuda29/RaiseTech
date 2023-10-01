@@ -7,20 +7,20 @@
 
 # nginxがインストールされていない場合、Amazon Linux 2のextrasリポジトリからnginxをインストールします。
 - name: Install nginx if not already installed
-  become: true
+  become_user: root
   shell: bash -lc "amazon-linux-extras install -y nginx1"
   when: nginx_installed.rc != 0
 
 # Railsと連携するためのnginx設定ファイル「rails.conf」を作成します。
 - name: Create rails.conf for nginx
-  become: true
+  become_user: root
   template:
     src: rails.conf.j2
     dest: "/etc/nginx/conf.d/rails.conf"
 
 # nginxサービスを起動します。
 - name: Start nginx service
-  become: true
+  become_user: root
   service:
     name: nginx
     state: started
