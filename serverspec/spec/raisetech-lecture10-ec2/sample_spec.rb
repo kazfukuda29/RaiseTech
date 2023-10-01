@@ -73,6 +73,10 @@ end
 end
 
 # アプリケーションの存在確認
-describe command('ls -al') do
-  its(:stdout) { should match /raisetech-live8-sample-app/ }
+describe 'sample_spec' do
+  it 'checks the existence of raisetech-live8-sample-app in /var/www/' do
+    output = command('ls -al /var/www/').stdout
+    expect(output).to match(/raisetech-live8-sample-app/)
+  end
 end
+
