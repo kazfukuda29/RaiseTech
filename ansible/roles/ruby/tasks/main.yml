@@ -48,15 +48,15 @@
 
 - name: Install specified Ruby version using rbenv
   command: rbenv install {{ ruby_version }}
-  when: ruby_version_check.stdout != "{{ ruby_version }}"
+  when: ruby_version_check.stdout != ruby_version
   tags: ruby
 
 - name: Set the default Ruby version with rbenv
   command: rbenv global {{ ruby_version }}
-  when: ruby_version_check.stdout != "{{ ruby_version }}"
+  when: ruby_version_check.stdout != ruby_version
   tags: ruby
 
 - name: Update rbenv configuration
   command: rbenv rehash
-  when: ruby_version_check.stdout != "{{ ruby_version }}"
+  when: ruby_version_check.stdout != ruby_version
   tags: rbenv
