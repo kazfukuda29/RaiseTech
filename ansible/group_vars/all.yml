@@ -10,3 +10,4 @@ aws_db_user: "{{ lookup('env', 'AWS_DB_USER') }}" #CircleCiの環境変数にコ
 aws_db_pw: "{{ lookup('env', 'AWS_DB_PW') }}" #CircleCiの環境変数にコンソールで設定
 aws_db_host: "{{ lookup('env', 'AWS_DB_HOST') }}" #CircleCiの環境変数にデプロイ時に登録される
 aws_s3_bucket: "raisetech-lecture10-s3"
+
