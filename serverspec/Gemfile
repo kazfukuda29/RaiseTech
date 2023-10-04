@@ -1,0 +1,9 @@
+source "https://rubygems.org"
+
+git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
+
+gem 'serverspec'
+gem 'rake'
+gem 'highline'
+gem 'ed25519'
+gem 'bcrypt_pbkdf'

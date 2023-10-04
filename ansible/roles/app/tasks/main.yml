@@ -1,0 +1,33 @@
+# リポジトリをクローンする
+- name: Clone the app repository
+  git:
+    repo: "{{ app_repo_url }}"
+    dest: "{{ sample_app_dir }}"
+    force: yes
+  register: git_clone_action  # 変数名を明確にするために変更しました
+  become: yes
+  become_user: root
+
+# クローンしたアプリのディレクトリのオーナーを変更する
+- name: Update ownership of cloned app directory
+  file:
+    path: "{{ sample_app_dir }}"
+    state: directory
+    owner: ec2-user
+    recurse: yes
+  become: yes
+  become_user: root
+  when: git_clone_action.changed  # 上記で変更した変数名に合わせて変更しました
+
+# 各種設定ファイルを作成/更新する
+- name: Create/Update config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - { src: 'database.yml.j2', dest: "{{ sample_app_dir }}/config/database.yml" }
+    - { src: 'storage.yml.j2', dest: "{{ sample_app_dir }}/config/storage.yml" }
+    - { src: 'unicorn.rb.j2', dest: "{{ sample_app_dir }}/config/unicorn.rb" }
+    - { src: 'development.rb.j2', dest: "{{ sample_app_dir }}/config/environments/development.rb" }
+  become: yes
+  become_user: root

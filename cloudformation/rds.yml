@@ -85,6 +85,10 @@ Outputs:
     Value: !Ref Lec10RDS
     Export:
       Name: RDS
+  RDSEndpoint:
+    Value: !GetAtt Lec10RDS.Endpoint.Address
+    Export:
+      Name: RDSEndpoint
   RDSSg:
     Value: !Ref Lec10RdsSecurityGroup
     Export:

@@ -1,0 +1,21 @@
+- name: check node install
+  shell: bash -lc "node --version | grep {{ node_version }}"
+  register: node_version_check
+  changed_when: no
+  ignore_errors: yes
+
+- name: Check if nvm is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+  register: nvm_installed
+
+- name: Install nvm if not present
+  ansible.builtin.shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+  when: not nvm_installed.stat.exists
+
+- name: Install Node using nvm if not present
+  shell: bash -lc "source {{ ansible_env.HOME }}/.nvm/nvm.sh && nvm install {{ node_version }}"
+  when: node_version_check is failed
